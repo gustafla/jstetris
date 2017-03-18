@@ -265,18 +265,19 @@ Tetromino.prototype.siirra = function(x, y) {
     // Tarkistukset
     for (var i = 0; i < varatutTilatKoko; i++) {
         var paikka = this.varatutTilat[i];
+        var uusiPaikka = new Vec2(paikka.x + x, paikka.y + y);
 
         // Tarkistetaan pelialueen rajojen ylityset
-        if (paikka.x + x < 0 || paikka.x + x >= this.kentta.koko.x) {
+        if (uusiPaikka.x < 0 || uusiPaikka.x >= this.kentta.koko.x) {
             return true;
         }
 
-        if (paikka.y + y < 0 || paikka.y + y >= this.kentta.koko.y) {
+        if (uusiPaikka.y + y < 0 || uusiPaikka.y + y >= this.kentta.koko.y) {
             return true;
         }
         
         // Sitten tarkistetaan edellisten palojen leikkaukset
-        if (!this.kentta.onkoVapaa(paikka.x + x, paikka.y + y)) {
+        if (!this.kentta.onkoVapaa(uusiPaikka.x, uusiPaikka.y)) {
             //Tälle palalle ei ole tilaa, palauta virhe
             return true;
         }
