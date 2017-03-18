@@ -1,0 +1,3 @@
+Separate input, graphics, logic threads
+Clean up Tetromino initialization syntax
+
