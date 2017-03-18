@@ -1,5 +1,3 @@
-var canvas = document.getElementById("tetrisCanvas");
-var context = canvas.getContext("2d");
 
 // Util -----------------------------------------------------------------------
 
@@ -57,18 +55,18 @@ function rgbToHex(r, g, b) {
     return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
 
-function piirraTeksti(teksti, x, y) {
-    context.fillStyle = "#FFFFFF";
-    context.strokeStyle = "#000000";
-    context.fillText(teksti, x, y);
-    context.strokeText(teksti, x, y);
+function piirraTeksti(grafiikka, teksti, x, y) {
+    grafiikka.fillStyle = "#FFFFFF";
+    grafiikka.strokeStyle = "#000000";
+    grafiikka.fillText(teksti, x, y);
+    grafiikka.strokeText(teksti, x, y);
 }
 
 // Vec2 -----------------------------------------------------------------------
 
 // Minimaalinen säiliöluokka 2-ulotteiselle vektorille, en uskalla vielä tehdä
 // parempaa
-function Vec2 (x, y) {
+function Vec2(x, y) {
     this.x = x;
     this.y = y;
 }
@@ -272,7 +270,7 @@ Tetromino.prototype.siirra = function(x, y) {
             return true;
         }
 
-        if (uusiPaikka.y + y < 0 || uusiPaikka.y + y >= this.kentta.koko.y) {
+        if (uusiPaikka.y < 0 || uusiPaikka.y >= this.kentta.koko.y) {
             return true;
         }
         
@@ -342,27 +340,30 @@ Peli.prototype.paivita = function() {
     }
 };
 
-Peli.prototype.piirra = function() {
-    context.textAlign = "left";
-    piirraTeksti("pisteet: " + this.pisteet, 0, 0);
+Peli.prototype.piirra = function(grafiikka) {
+    grafiikka.textAlign = "left";
+    piirraTeksti(grafiikka, "pisteet: " + this.pisteet, 0, 0);
 
     if (this.havitty == true) {
-        context.textAlign = "center";
-        piirraTeksti("Hävisit pelin!", canvas.width/2, canvas.height/2);
+        grafiikka.textAlign = "center";
+        piirraTeksti(grafiikka, "Hävisit pelin!", canvas.width/2, canvas.height/2);
     } else {
         // Piirretään pelin grafiikat
-        this.kentta.piirra();
-        this.aktiivinenTetromino.piirra();
+        this.kentta.piirra(grafiikka);
+        this.aktiivinenTetromino.piirra(grafiikka);
     }
 };
 
 // Pelin alku -----------------------------------------------------------------
 
-peli = new Peli();
+var canvas = document.getElementById("tetrisCanvas");
+var context = canvas.getContext("2d");
+var peli = new Peli();
+
 function piirra() {
     context.clearRect(0, 0, canvas.width, canvas.height);
     peli.paivita();
-    peli.piirra();
+    peli.piirra(context);
 }
 context.font = '26px sans-serif';
 context.textBaseline = "hanging";
