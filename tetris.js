@@ -62,6 +62,35 @@ function piirraTeksti(grafiikka, teksti, x, y) {
     grafiikka.strokeText(teksti, x, y);
 }
 
+// Syöte ----------------------------------------------------------------------
+
+function Nappain() {
+    this.painetut = {};
+
+    this.VASEN = 37;
+    this.YLOS = 38;
+    this.OIKEA = 39;
+    this.ALAS = 40;
+
+}
+
+Nappain.prototype.painettu = function(koodi) {
+    return this.painetut[koodi];
+};
+
+Nappain.prototype.painettaessa = function(tapahtuma) {
+    this.painetut[tapahtuma.keyCode] = true;
+};
+
+Nappain.prototype.irrottaessa = function(tapahtuma) {
+    delete this.painetut[tapahtuma.keyCode];
+};
+
+function assosioiNappain(nappain) {
+    window.addEventListener('keyup', function(event) { nappain.irrottaessa(event); }, false);
+    window.addEventListener('keydown', function(event) { nappain.painettaessa(event); }, false);
+}
+
 // Vec2 -----------------------------------------------------------------------
 
 // Minimaalinen säiliöluokka 2-ulotteiselle vektorille, en uskalla vielä tehdä
@@ -323,8 +352,17 @@ Peli.prototype.vaihdaTetromino = function() {
     this.havitty = this.aktiivinenTetromino.leikkaa();
 };
 
-Peli.prototype.paivita = function() {
+Peli.prototype.paivita = function(nappain) {
     if (this.havitty != true) {
+        // Käsitellään syöte
+        if (nappain.painettu(nappain.VASEN)) {
+            this.aktiivinenTetromino.siirra(-1, 0);
+        } else if (nappain.painettu(nappain.OIKEA)) {
+            this.aktiivinenTetromino.siirra(1, 0);
+        } else if (nappain.painettu(nappain.ALAS)) {
+            while (!this.aktiivinenTetromino.siirra(0, 1));
+        }
+
         // Jos tetrominoa ei ole, otetaan uusi
         if (this.aktiivinenTetromino == 0) {
             console.log("Ei tetrominoa, tehdään.");
@@ -359,12 +397,15 @@ Peli.prototype.piirra = function(grafiikka) {
 var canvas = document.getElementById("tetrisCanvas");
 var context = canvas.getContext("2d");
 var peli = new Peli();
+var nappain = new Nappain();
+assosioiNappain(nappain);
 
 function piirra() {
     context.clearRect(0, 0, canvas.width, canvas.height);
-    peli.paivita();
+    peli.paivita(nappain);
     peli.piirra(context);
 }
+
 context.font = '26px sans-serif';
 context.textBaseline = "hanging";
 setInterval(piirra, 500);
