@@ -160,16 +160,22 @@ Kentta.prototype.onkoRiviTaysi = function(rivi) {
     }
 
     return true;
-}
+};
+
+Kentta.prototype.tarkistaRivit = function() {
+    var n = 0;
+    for (var y = 0; y < this.koko.y; y++) {
+        if (this.onkoRiviTaysi(y)) {
+            this.poistaRivi(y);
+            n++;
+        }
+    }
+    return n;
+};
 
 Kentta.prototype.aseta = function(x, y, vari) {
     if (this.onkoVapaa(x, y)) {
         this.kentta[x][y] = vari;
-
-        if (this.onkoRiviTaysi(y)) {
-            this.poistaRivi(y);
-        }
-
         return false;
     }
     // Haluttu paikka on jo peitossa!
@@ -403,6 +409,8 @@ function Peli() {
     this.koko = new Vec2(12, 16);
     this.kentta = new Kentta(this.koko.x, this.koko.y);
     this.aktiivinenTetromino = 0;
+    //http://tetris.wikia.com/wiki/Scoring
+    this.rivimaarienPisteet = [0, 40, 100, 300, 1200];
 }
 
 Peli.prototype.vaihdaTetromino = function() {
@@ -430,11 +438,19 @@ Peli.prototype.piirra = function() {
     }
 };
 
+Peli.prototype.pisteytaRivit = function() {
+    // Tyhjentää, siirtää ja palauttaa määrän
+    var n = this.kentta.tarkistaRivit();
+
+    this.pisteet += this.rivimaarienPisteet[n];
+};
+
 Peli.prototype.paivita = function(nappain) {
     if (this.havitty != true) {
         // Siirretään tetrominoa alas, jos ei voi enää niin otetaan uusi
         if (this.aktiivinenTetromino.siirra(0, 1)) {
             this.aktiivinenTetromino.aseta();
+            this.pisteytaRivit();
             this.vaihdaTetromino();
         }
         this.piirra();
