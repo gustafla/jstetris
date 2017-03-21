@@ -1,5 +1,3 @@
-console.log("rivi 1");
-
 // Globaali canvas ja konteksti
 var canvas = document.getElementById("tetrisCanvas");
 var context = canvas.getContext("2d");
@@ -9,7 +7,6 @@ var context = canvas.getContext("2d");
 // Lähde (16.3.2017):
 // http://stackoverflow.com/a/966938
 function createArray(length) {
-    console.log("createArray");
     var arr = new Array(length || 0),
         i = length;
 
@@ -24,7 +21,6 @@ function createArray(length) {
 // Lähde (18.3.2017):
 // http://stackoverflow.com/a/17243070
 function HSVtoRGB(h, s, v) {
-    console.log("HSVtoRGB");
     var r, g, b, i, f, p, q, t;
     if (arguments.length === 1) {
         s = h.s, v = h.v, h = h.h;
@@ -52,7 +48,6 @@ function HSVtoRGB(h, s, v) {
 // Lähde (18.3.2017):
 // http://stackoverflow.com/a/5624139
 function componentToHex(c) {
-    console.log("componentToHex");
     var hex = c.toString(16);
     return hex.length == 1 ? "0" + hex : hex;
 }
@@ -60,7 +55,6 @@ function componentToHex(c) {
 // Lähde (18.3.2017):
 // http://stackoverflow.com/a/5624139
 function rgbToHex(r, g, b) {
-    console.log("rgbToHex");
     return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
 
@@ -69,13 +63,11 @@ function rgbToHex(r, g, b) {
 // Minimaalinen säiliöluokka 2-ulotteiselle vektorille, en uskalla vielä tehdä
 // parempaa
 function Vec2(x, y) {
-    console.log("Vec2");
     this.x = x;
     this.y = y;
 }
 
 Vec2.prototype.summa = function(b) {
-    console.log("Vec2.summa " + this);
     this.x += b.x;
     this.y += b.y;
 };
@@ -96,7 +88,6 @@ var Nappain = {
 // Piirtometodit ---------------------------------------------------------------
 
 function piirraPala(x, y, w, h, vari) {
-    console.log("piirraPala");
     var palanKoko = new Vec2(canvas.width/w, canvas.height/h);
     var paikkaRuudulla = new Vec2(x * palanKoko.x, y * palanKoko.y);
 
@@ -108,7 +99,6 @@ function piirraPala(x, y, w, h, vari) {
 }
 
 function piirraTeksti(x, y, teksti) {
-    console.log("piirraTeksti");
     context.fillStyle = "#FFFFFF";
     context.strokeStyle = "#000000";
     context.fillText(teksti, x, y);
@@ -118,7 +108,6 @@ function piirraTeksti(x, y, teksti) {
 // Kentta ---------------------------------------------------------------------
 
 function Kentta(w, h) {
-    console.log("Kentta");
     this.koko = new Vec2(w, h);
     this.kentta = createArray(this.koko.x, this.koko.y);
     for (var x = 0; x < this.koko.x; x++) {
@@ -128,7 +117,6 @@ function Kentta(w, h) {
 }
 
 Kentta.prototype.piirra = function() {
-    console.log("Kentta.piirra " + this);
     for (var x = 0; x < this.koko.x; x++) {
         for (var y = 0; y < this.koko.y; y++) {
             var arvo = this.kentta[x][y];
@@ -143,30 +131,25 @@ Kentta.prototype.piirra = function() {
 };
 
 Kentta.prototype.onkoVapaa = function(x, y) {
-    console.log("Kentta.onkoVapaa " + this);
     return (this.kentta[x][y] == 0);
 };
 
 Kentta.prototype.aseta = function(x, y, vari) {
-    console.log("Kentta.aseta " + this);
     if (this.onkoVapaa(x, y)) {
         this.kentta[x][y] = vari;
         return false;
     }
-    console.log("Kentta.aseta: paikka ei ollut vapaa.");
     // Haluttu paikka on jo peitossa!
     return true;
 };
 
 Kentta.prototype.poista = function(x, y) {
-    console.log("Kentta.poista " + this);
     this.kentta[x][y] = 0;
 };
 
 // Tetromino ------------------------------------------------------------------
 
 function Tetromino(tyyppi, vari, kentta) {
-    console.log("Tetromino");
     this.varatutTilat = [[], [], [], []];
     this.paikka = new Vec2(Math.floor(kentta.koko.x/2)-1, 0);
     this.kierto = 0;
@@ -264,9 +247,7 @@ function Tetromino(tyyppi, vari, kentta) {
 }
 
 Tetromino.prototype.leikkaa = function() {
-    console.log("Tetromino.leikkaa " + this);
     var varatutTilatKoko = this.varatutTilat[this.kierto].length;
-    console.log("   varatutTilatKoko=" + varatutTilatKoko);
     // Testataan palojen tilat
     for (var i = 0; i < varatutTilatKoko; i++) {
         var paikkaKentalla = this.varatutTilat[this.kierto][i].kopio();
@@ -282,12 +263,9 @@ Tetromino.prototype.leikkaa = function() {
 };
 
 Tetromino.prototype.aseta = function() {
-    console.log("Tetromino.aseta " + this);
     var varatutTilatKoko = this.varatutTilat[this.kierto].length;
-    console.log("   varatutTilatKoko=" + varatutTilatKoko);
     // Testataan ensin palojen tilat
     if (this.leikkaa()) {
-        console.log("Tetromino.aseta: ei voi asettaa, tetromino leikkaa jo!");
         return true;
     }
 
@@ -297,8 +275,6 @@ Tetromino.prototype.aseta = function() {
         paikkaKentalla.summa(this.paikka);
 
         if (this.kentta.aseta(paikkaKentalla.x, paikkaKentalla.y, this.vari)) {
-            // Ei pitäisi tapahtua mutta handlataan silti
-            console.log("Tetromino.aseta: kentta ei ottanut palaa vastaan!");
             return true;
         }
     }
@@ -307,7 +283,6 @@ Tetromino.prototype.aseta = function() {
 };
 
 Tetromino.prototype.poista = function() {
-    console.log("Tetromino.poista " + this);
     var varatutTilatKoko = this.varatutTilat[this.kierto].length;
 
     // Poistetaan palat
@@ -320,7 +295,6 @@ Tetromino.prototype.poista = function() {
 };
 
 Tetromino.prototype.siirra = function(x, y) {
-    console.log("Tetromino.siirra " + this);
     var varatutTilatKoko = this.varatutTilat[this.kierto].length;
 
     // Tarkistukset
@@ -354,8 +328,6 @@ Tetromino.prototype.siirra = function(x, y) {
 };
 
 Tetromino.prototype.kierra = function(suunta) {
-    console.log("Tetromino.kierra " + this);
-
     var uusiKierto = this.kierto + suunta;
 
     if (uusiKierto > 3) {
@@ -385,7 +357,6 @@ Tetromino.prototype.kierra = function(suunta) {
 };
 
 Tetromino.prototype.piirra = function() {
-    console.log("Tetromino.piirra " + this);
     var varatutTilatKoko = this.varatutTilat[this.kierto].length;
     for (var i = 0; i < varatutTilatKoko; i++) {
         var paikkaKentalla = this.varatutTilat[this.kierto][i].kopio();
@@ -398,7 +369,6 @@ Tetromino.prototype.piirra = function() {
 // Peli -----------------------------------------------------------------------
 
 function Peli() {
-    console.log("Peli");
     this.havitty = false;
     this.pisteet = 0;
     this.koko = new Vec2(12, 16);
@@ -407,19 +377,15 @@ function Peli() {
 }
 
 Peli.prototype.vaihdaTetromino = function() {
-    console.log("Peli.vaihdaTetromino " + this);
     var tyyppi = Math.floor(Math.random() * 7);
     var variRgb = HSVtoRGB(Math.random(), 0.5, 0.8);
     this.aktiivinenTetromino = new Tetromino(tyyppi, rgbToHex(variRgb.r, variRgb.g, variRgb.b), this.kentta);
-    console.log("   this.aktiivinenTetromino " + this.aktiivinenTetromino.toSource());
 
     //Onko pelin kenttä jo liian täynnä?
     this.havitty = this.aktiivinenTetromino.leikkaa();
-    console.log("   this.aktiivinenTetromino " + this.aktiivinenTetromino.toSource());
 };
 
 Peli.prototype.piirra = function() {
-    console.log("Peli.piirra " + this);
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     context.textAlign = "left";
@@ -436,12 +402,9 @@ Peli.prototype.piirra = function() {
 };
 
 Peli.prototype.paivita = function(nappain) {
-    console.log("Peli.paivita " + this);
     if (this.havitty != true) {
         // Siirretään tetrominoa alas, jos ei voi enää niin otetaan uusi
-        console.log("   this.aktiivinenTetromino " + this.aktiivinenTetromino.toSource());
         if (this.aktiivinenTetromino.siirra(0, 1)) {
-            console.log("Tetrominoa ei voi enää pudottaa, tehdään uusi");
             this.aktiivinenTetromino.aseta();
             this.vaihdaTetromino();
         }
@@ -450,7 +413,6 @@ Peli.prototype.paivita = function(nappain) {
 };
 
 Peli.prototype.syoteTapahtuma = function(event) {
-    console.log("Peli.syoteTapahtuma " + this);
     if (this.havitty != true) {
         // Käsitellään syöte
         switch (event.keyCode) {
@@ -473,14 +435,15 @@ Peli.prototype.syoteTapahtuma = function(event) {
     }
 };
 
-// Pelin alku -----------------------------------------------------------------
-console.log("Pelin alku kommentti");
+// Pelin alku ------------------------------------------------------------------
 var peli = new Peli();
 peli.vaihdaTetromino();
 window.addEventListener('keydown', function(event) { peli.syoteTapahtuma(event); }, false);
-console.log("addEventListener kutsuttu");
 context.font = '26px sans-serif';
 context.textBaseline = "hanging";
-//setInterval(peli.paivita, 500);
-peli.paivita();
-console.log("setInterval kutsuttu");
+
+function paivita() {
+    peli.paivita();
+}
+
+setInterval(paivita, 500);
