@@ -1,4 +1,8 @@
 
+// Globaali canvas ja konteksti
+var canvas = document.getElementById("tetrisCanvas");
+var context = canvas.getContext("2d");
+
 // Util -----------------------------------------------------------------------
 
 // Lähde (16.3.2017):
@@ -55,40 +59,11 @@ function rgbToHex(r, g, b) {
     return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
 
-function piirraTeksti(grafiikka, teksti, x, y) {
-    grafiikka.fillStyle = "#FFFFFF";
-    grafiikka.strokeStyle = "#000000";
-    grafiikka.fillText(teksti, x, y);
-    grafiikka.strokeText(teksti, x, y);
-}
-
-// Syöte ----------------------------------------------------------------------
-
-function Nappain() {
-    this.painetut = {};
-
-    this.VASEN = 37;
-    this.YLOS = 38;
-    this.OIKEA = 39;
-    this.ALAS = 40;
-
-}
-
-Nappain.prototype.painettu = function(koodi) {
-    return this.painetut[koodi];
-};
-
-Nappain.prototype.painettaessa = function(tapahtuma) {
-    this.painetut[tapahtuma.keyCode] = true;
-};
-
-Nappain.prototype.irrottaessa = function(tapahtuma) {
-    delete this.painetut[tapahtuma.keyCode];
-};
-
-function assosioiNappain(nappain) {
-    window.addEventListener('keyup', function(event) { nappain.irrottaessa(event); }, false);
-    window.addEventListener('keydown', function(event) { nappain.painettaessa(event); }, false);
+function piirraTeksti(teksti, x, y) {
+    context.fillStyle = "#FFFFFF";
+    context.strokeStyle = "#000000";
+    context.fillText(teksti, x, y);
+    context.strokeText(teksti, x, y);
 }
 
 // Vec2 -----------------------------------------------------------------------
@@ -98,6 +73,15 @@ function assosioiNappain(nappain) {
 function Vec2(x, y) {
     this.x = x;
     this.y = y;
+}
+
+// Syöte ----------------------------------------------------------------------
+
+var Nappain = {
+    VASEN:37,
+    YLOS:38,
+    OIKEA:39,
+    ALAS:40
 }
 
 // Suorakulmio ----------------------------------------------------------------
@@ -162,43 +146,41 @@ Kentta.prototype.aseta = function(x, y, vari) {
 
 Kentta.prototype.poista = function(x, y) {
     this.kentta[x][y] = 0;
-}
+};
 
 // Tetromino ------------------------------------------------------------------
 
 function Tetromino(tyyppi, vari, kentta) {
     this.varatutTilat = [];
+    this.paikka = new Vec2(Math.floor(kentta.koko.x/2)-1, 0);
+    this.kierto = 0;
     this.vari = vari;
     this.kentta = kentta;
 
-    var x = Math.floor(kentta.koko.x/2)-1;
     switch (tyyppi) {
-        // 
+        //
         // xxxx
         default:
         case 0:
-            this.varatutTilat[0] = new Vec2(x, 0);
-            this.varatutTilat[1] = new Vec2(x+1, 0);
-            this.varatutTilat[2] = new Vec2(x+2, 0);
-            this.varatutTilat[3] = new Vec2(x+3, 0);
+            this.varatutTilat[0] = [new Vec2(0, 0), new Vec2(1, 0), new Vec2(2, 0), new Vec2(3, 0)];
+            this.varatutTilat[1] = [new Vec2(0, 0), new Vec2(0, 1), new Vec2(0, 2), new Vec2(0, 3)];
+            this.varatutTilat[2] = this.varatutTilat[0];
+            this.varatutTilat[3] = this.varatutTilat[1];
             break;
 
         // x
         // xxx
         case 1:
-            this.varatutTilat[0] = new Vec2(x, 0);
-            this.varatutTilat[1] = new Vec2(x, 1);
-            this.varatutTilat[2] = new Vec2(x+1, 1);
-            this.varatutTilat[3] = new Vec2(x+2, 1);
+            this.varatutTilat[0] = [new Vec2(0, 0), new Vec2(0, 1), new Vec2(1, 1), new Vec2(2, 1)];
+            this.varatutTilat[1] = [new Vec2(0, 0), new Vec2(1, 0), new Vec2(0, 1), new Vec2(x, 2)];
+            this.varatutTilat[3] = [new Vec2(-2, 0), new Vec2(-1, 0), new Vec2(0, 0), new Vec2(0, 1)];
+            this.varatutTilat[4] = [new Vec2(-1, 0), new Vec2(0, 0), new Vec2(0, -1), new Vec2(0, -2)];
             break;
 
         //   x
         // xxx
         case 2:
-            this.varatutTilat[0] = new Vec2(x+2, 0);
-            this.varatutTilat[1] = new Vec2(x, 1);
-            this.varatutTilat[2] = new Vec2(x+1, 1);
-            this.varatutTilat[3] = new Vec2(x+2, 1);
+            this.varatutTilat[0] = [new Vec2(0, 0), new Vec2(0, 1), new Vec2(1, 1), new Vec2(2, 1)];
             break;
 
         // xx
@@ -252,7 +234,7 @@ Tetromino.prototype.leikkaa = function() {
     }
 
     return false;
-}
+};
 
 Tetromino.prototype.aseta = function() {
     var varatutTilatKoko = this.varatutTilat.length;
@@ -278,7 +260,7 @@ Tetromino.prototype.aseta = function() {
 
 Tetromino.prototype.poista = function() {
     var varatutTilatKoko = this.varatutTilat.length;
-    
+
     // Poistetaan palat
     for (var i = 0; i < varatutTilatKoko; i++) {
         var paikka = this.varatutTilat[i];
@@ -302,7 +284,7 @@ Tetromino.prototype.siirra = function(x, y) {
         if (uusiPaikka.y < 0 || uusiPaikka.y >= this.kentta.koko.y) {
             return true;
         }
-        
+
         // Sitten tarkistetaan edellisten palojen leikkaukset
         if (!this.kentta.onkoVapaa(uusiPaikka.x, uusiPaikka.y)) {
             //Tälle palalle ei ole tilaa, palauta virhe
@@ -318,7 +300,12 @@ Tetromino.prototype.siirra = function(x, y) {
 
     // Onnistui
     return false;
-}
+};
+
+Tetromino.prototype.kierra = function(suunta) {
+    var varatutTilatKoko = this.varatutTilat.lenght;
+    var varatutTilatKierretty = [];
+};
 
 Tetromino.prototype.piirra = function() {
     var varatutTilatKoko = this.varatutTilat.length;
@@ -352,23 +339,26 @@ Peli.prototype.vaihdaTetromino = function() {
     this.havitty = this.aktiivinenTetromino.leikkaa();
 };
 
-Peli.prototype.paivita = function(nappain) {
+Peli.prototype.syoteTapahtuma = function(event) {
     if (this.havitty != true) {
         // Käsitellään syöte
-        if (nappain.painettu(nappain.VASEN)) {
-            this.aktiivinenTetromino.siirra(-1, 0);
-        } else if (nappain.painettu(nappain.OIKEA)) {
-            this.aktiivinenTetromino.siirra(1, 0);
-        } else if (nappain.painettu(nappain.ALAS)) {
-            while (!this.aktiivinenTetromino.siirra(0, 1));
+        switch (event.keyCode) {
+            case Nappain.VASEN:
+                this.aktiivinenTetromino.siirra(-1, 0);
+                break;
+            case Nappain.OIKEA:
+                this.aktiivinenTetromino.siirra(1, 0);
+                break;
+            case Nappain.ALAS:
+                while (!this.aktiivinenTetromino.siirra(0, 1));
+                break;
+            default:
         }
+    }
+};
 
-        // Jos tetrominoa ei ole, otetaan uusi
-        if (this.aktiivinenTetromino == 0) {
-            console.log("Ei tetrominoa, tehdään.");
-            this.vaihdaTetromino();
-        }
-            
+Peli.prototype.paivita = function(nappain) {
+    if (this.havitty != true) {
         // Siirretään tetrominoa alas, jos ei voi enää niin otetaan uusi
         if (this.aktiivinenTetromino.siirra(0, 1)) {
             console.log("Tetrominoa ei voi enää pudottaa, tehdään uusi");
@@ -378,34 +368,35 @@ Peli.prototype.paivita = function(nappain) {
     }
 };
 
-Peli.prototype.piirra = function(grafiikka) {
-    grafiikka.textAlign = "left";
-    piirraTeksti(grafiikka, "pisteet: " + this.pisteet, 0, 0);
+Peli.prototype.piirra = function() {
+    context.textAlign = "left";
+    piirraTeksti("pisteet: " + this.pisteet, 0, 0);
 
     if (this.havitty == true) {
-        grafiikka.textAlign = "center";
-        piirraTeksti(grafiikka, "Hävisit pelin!", canvas.width/2, canvas.height/2);
+        context.textAlign = "center";
+        piirraTeksti("Hävisit pelin!", canvas.width/2, canvas.height/2);
     } else {
         // Piirretään pelin grafiikat
-        this.kentta.piirra(grafiikka);
-        this.aktiivinenTetromino.piirra(grafiikka);
+        this.kentta.piirra();
+        this.aktiivinenTetromino.piirra();
     }
 };
 
 // Pelin alku -----------------------------------------------------------------
 
-var canvas = document.getElementById("tetrisCanvas");
-var context = canvas.getContext("2d");
 var peli = new Peli();
-var nappain = new Nappain();
-assosioiNappain(nappain);
+window.addEventListener('keydown', function(event) { peli.syoteTapahtuma(event); }, false);
 
 function piirra() {
     context.clearRect(0, 0, canvas.width, canvas.height);
-    peli.paivita(nappain);
-    peli.piirra(context);
+    peli.piirra();
+}
+
+function paivita() {
+    peli.paivita();
 }
 
 context.font = '26px sans-serif';
 context.textBaseline = "hanging";
-setInterval(piirra, 500);
+setInterval(piirra, 33);
+setInterval(paivita, 500);
