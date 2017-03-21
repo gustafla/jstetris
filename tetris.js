@@ -370,6 +370,34 @@ Peli.prototype.vaihdaTetromino = function() {
     this.havitty = this.aktiivinenTetromino.leikkaa();
 };
 
+Peli.prototype.piirra = function() {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    context.textAlign = "left";
+    piirraTeksti(0, 0, "pisteet: " + this.pisteet);
+
+    if (this.havitty == true) {
+        context.textAlign = "center";
+        piirraTeksti(canvas.width/2, canvas.height/2, "Hävisit pelin!");
+    } else {
+        // Piirretään pelin grafiikat
+        this.kentta.piirra();
+        this.aktiivinenTetromino.piirra();
+    }
+};
+
+Peli.prototype.paivita = function(nappain) {
+    if (this.havitty != true) {
+        // Siirretään tetrominoa alas, jos ei voi enää niin otetaan uusi
+        if (this.aktiivinenTetromino.siirra(0, 1)) {
+            console.log("Tetrominoa ei voi enää pudottaa, tehdään uusi");
+            this.aktiivinenTetromino.aseta();
+            this.vaihdaTetromino();
+        }
+        this.piirra();
+    }
+};
+
 Peli.prototype.syoteTapahtuma = function(event) {
     if (this.havitty != true) {
         // Käsitellään syöte
@@ -385,31 +413,8 @@ Peli.prototype.syoteTapahtuma = function(event) {
                 break;
             default:
         }
-    }
-};
 
-Peli.prototype.paivita = function(nappain) {
-    if (this.havitty != true) {
-        // Siirretään tetrominoa alas, jos ei voi enää niin otetaan uusi
-        if (this.aktiivinenTetromino.siirra(0, 1)) {
-            console.log("Tetrominoa ei voi enää pudottaa, tehdään uusi");
-            this.aktiivinenTetromino.aseta();
-            this.vaihdaTetromino();
-        }
-    }
-};
-
-Peli.prototype.piirra = function() {
-    context.textAlign = "left";
-    piirraTeksti(0, 0, "pisteet: " + this.pisteet);
-
-    if (this.havitty == true) {
-        context.textAlign = "center";
-        piirraTeksti(canvas.width/2, canvas.height/2, "Hävisit pelin!");
-    } else {
-        // Piirretään pelin grafiikat
-        this.kentta.piirra();
-        this.aktiivinenTetromino.piirra();
+        this.piirra();
     }
 };
 
@@ -419,16 +424,6 @@ var peli = new Peli();
 peli.vaihdaTetromino();
 window.addEventListener('keydown', function(event) { peli.syoteTapahtuma(event); }, false);
 
-function piirra() {
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    peli.piirra();
-}
-
-function paivita() {
-    peli.paivita();
-}
-
 context.font = '26px sans-serif';
 context.textBaseline = "hanging";
-setInterval(piirra, 33);
-setInterval(paivita, 500);
+setInterval(peli.paivita, 500);
