@@ -430,7 +430,7 @@ Peli.prototype.piirra = function() {
 
     if (this.havitty == true) {
         context.textAlign = "center";
-        piirraTeksti(canvas.width/2, canvas.height/2, "Hävisit pelin!");
+        piirraTeksti(canvas.width/2, canvas.height/2, "Peli päättyi!");
     } else {
         // Piirretään pelin grafiikat
         this.kentta.piirra();
