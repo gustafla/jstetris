@@ -355,13 +355,33 @@ Tetromino.prototype.siirra = function(x, y) {
 
 Tetromino.prototype.kierra = function(suunta) {
     console.log("Tetromino.kierra " + this);
-    this.kierto += suunta;
 
-    if (this.kierto > 3) {
-        this.kierto = 0;
-    } else if (this.kierto < 0) {
-        this.kierto = 3;
+    var uusiKierto = this.kierto + suunta;
+
+    if (uusiKierto > 3) {
+        uusiKierto = 0;
+    } else if (uusiKierto < 0) {
+        uusiKierto = 3;
     }
+
+    // Ei kierretä tetrominoa jos se menisi muiden palojen päälle
+    // Tai leikkaisi edellisiä
+    // TODO, kierrä kun nostaessa palaa se ei enää leikkaa.
+    var varatutTilatKoko = this.varatutTilat[this.kierto].length;
+    for (var i = 0; i < varatutTilatKoko; i++) {
+        var paikkaKentalla = this.varatutTilat[uusiKierto][i].kopio();
+        paikkaKentalla.summa(this.paikka);
+
+        // Tarkistetaan rajojen ylitykset
+        if ((paikkaKentalla.x < 0 || paikkaKentalla.x >= this.kentta.koko.x)
+        || (paikkaKentalla.y < 0 || paikkaKentalla.y >= this.kentta.koko.y)
+        || (!this.kentta.onkoVapaa(paikkaKentalla.x, paikkaKentalla.y))) {
+            return true;
+        }
+    }
+
+    this.kierto = uusiKierto;
+    return false;
 };
 
 Tetromino.prototype.piirra = function() {
