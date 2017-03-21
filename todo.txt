@@ -1,3 +1,5 @@
-Clean up Tetromino initialization syntax, fix rotations
-Change Tetromino logic to use offsets instead of coords
-Remove draw interval, call draw from input handler and game logic update
+Implement more player-friendly rotations near borders and blocks
+Move unused methods to deadcode.js
+Implement animations
+Implement more permissive after-drop movement
+Implement variable speed (level)
