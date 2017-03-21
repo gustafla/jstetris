@@ -134,17 +134,46 @@ Kentta.prototype.onkoVapaa = function(x, y) {
     return (this.kentta[x][y] == 0);
 };
 
+Kentta.prototype.poista = function(x, y) {
+    this.kentta[x][y] = 0;
+};
+
+Kentta.prototype.poistaRivi = function(rivi) {
+    // Siirrä ylemmät rivit alemmas
+    for (var y = rivi; y > 0; y--) {
+        for (var x = 0; x < this.koko.x; x++) {
+            this.kentta[x][y] = this.kentta[x][y-1];
+        }
+    }
+
+    // Ja täytä ylin tyhjällä
+    for (var x = 0; x < this.koko.x; x++) {
+        this.kentta[x][0] = 0;
+    }
+};
+
+Kentta.prototype.onkoRiviTaysi = function(rivi) {
+    for (var x = 0; x < this.koko.x; x++) {
+        if (this.kentta[x][rivi] == 0) {
+            return false;
+        };
+    }
+
+    return true;
+}
+
 Kentta.prototype.aseta = function(x, y, vari) {
     if (this.onkoVapaa(x, y)) {
         this.kentta[x][y] = vari;
+
+        if (this.onkoRiviTaysi(y)) {
+            this.poistaRivi(y);
+        }
+
         return false;
     }
     // Haluttu paikka on jo peitossa!
     return true;
-};
-
-Kentta.prototype.poista = function(x, y) {
-    this.kentta[x][y] = 0;
 };
 
 // Tetromino ------------------------------------------------------------------
