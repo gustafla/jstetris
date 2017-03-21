@@ -75,6 +75,11 @@ function Vec2(x, y) {
     this.y = y;
 }
 
+Vec2.prototype.summa = function(b) {
+    this.x += b.x;
+    this.y += b.y;
+};
+
 // Syöte ----------------------------------------------------------------------
 
 var Nappain = {
@@ -248,12 +253,14 @@ function Tetromino(tyyppi, vari, kentta) {
 }
 
 Tetromino.prototype.leikkaa = function() {
-    var varatutTilatKoko = this.varatutTilat.length;
+    var varatutTilatKoko = this.varatutTilat[this.kierto].length;
 
     // Testataan palojen tilat
     for (var i = 0; i < varatutTilatKoko; i++) {
-        var paikka = this.varatutTilat[i];
-        if (!this.kentta.onkoVapaa(paikka.x, paikka.y)) {
+        var paikkaKentalla = this.varatutTilat[this.kierto][i];
+        paikkaKentalla.summa(this.paikka);
+
+        if (!this.kentta.onkoVapaa(paikkaKentalla.x, paikkaKentalla.y)) {
             // Tälle palalle ei ole tilaa, palauta virhe
             return true;
         }
@@ -263,7 +270,7 @@ Tetromino.prototype.leikkaa = function() {
 };
 
 Tetromino.prototype.aseta = function() {
-    var varatutTilatKoko = this.varatutTilat.length;
+    var varatutTilatKoko = this.varatutTilat[this.kierto].length;
 
     // Testataan ensin palojen tilat
     if (this.leikkaa()) {
@@ -273,8 +280,10 @@ Tetromino.prototype.aseta = function() {
 
     // Sitten asetetaan palat
     for (var i = 0; i < varatutTilatKoko; i++) {
-        var paikka = this.varatutTilat[i];
-        if (this.kentta.aseta(paikka.x, paikka.y, this.vari)) {
+        var paikkaKentalla = this.varatutTilat[this.kierto][i];
+        paikkaKentalla.summa(this.paikka);
+
+        if (this.kentta.aseta(paikkaKentalla.x, paikkaKentalla.y, this.vari)) {
             // Ei pitäisi tapahtua mutta handlataan silti
             console.log("Tetromino.aseta: kentta ei ottanut palaa vastaan!");
             return true;
@@ -285,58 +294,65 @@ Tetromino.prototype.aseta = function() {
 };
 
 Tetromino.prototype.poista = function() {
-    var varatutTilatKoko = this.varatutTilat.length;
+    var varatutTilatKoko = this.varatutTilat[this.kierto].length;
 
     // Poistetaan palat
     for (var i = 0; i < varatutTilatKoko; i++) {
-        var paikka = this.varatutTilat[i];
-        this.kentta.poista(paikka.x, paikka.y);
+        var paikkaKentalla = this.varatutTilat[this.kierto][i];
+        paikkaKentalla.summa(this.paikka);
+
+        this.kentta.poista(paikkaKentalla.x, paikkaKentalla.y);
     }
 };
 
 Tetromino.prototype.siirra = function(x, y) {
-    var varatutTilatKoko = this.varatutTilat.length;
+    var varatutTilatKoko = this.varatutTilat[this.kierto].length;
 
     // Tarkistukset
     for (var i = 0; i < varatutTilatKoko; i++) {
-        var paikka = this.varatutTilat[i];
-        var uusiPaikka = new Vec2(paikka.x + x, paikka.y + y);
+        var paikkaKentalla = this.varatutTilat[this.kierto][i];
+        paikkaKentalla.summa(this.paikka);
+
+        var uusiPaikkaKentalla = new Vec2(paikkaKentalla.x + x, paikkaKentalla.y + y);
 
         // Tarkistetaan pelialueen rajojen ylityset
-        if (uusiPaikka.x < 0 || uusiPaikka.x >= this.kentta.koko.x) {
+        if (uusiPaikkaKentalla.x < 0 || uusiPaikkaKentalla.x >= this.kentta.koko.x) {
             return true;
         }
 
-        if (uusiPaikka.y < 0 || uusiPaikka.y >= this.kentta.koko.y) {
+        if (uusiPaikkaKentalla.y < 0 || uusiPaikkaKentalla.y >= this.kentta.koko.y) {
             return true;
         }
 
         // Sitten tarkistetaan edellisten palojen leikkaukset
-        if (!this.kentta.onkoVapaa(uusiPaikka.x, uusiPaikka.y)) {
+        if (!this.kentta.onkoVapaa(uusiPaikkaKentalla.x, uusiPaikkaKentalla.y)) {
             //Tälle palalle ei ole tilaa, palauta virhe
             return true;
         }
     }
 
     // Ja siirretään sitten palat
-    for (var i = 0; i < varatutTilatKoko; i++) {
-        this.varatutTilat[i].x += x;
-        this.varatutTilat[i].y += y;
-    }
+    this.paikka.summa(new Vec2(x, y));
 
     // Onnistui
     return false;
 };
 
 Tetromino.prototype.kierra = function(suunta) {
-    var varatutTilatKoko = this.varatutTilat.lenght;
-    var varatutTilatKierretty = [];
+    this.kierto += suunta;
+
+    if (this.kierto > 3) {
+        this.kierto = 0;
+    } else if (this.kierto < 0) {
+        this.kierto = 3;
+    }
 };
 
 Tetromino.prototype.piirra = function() {
-    var varatutTilatKoko = this.varatutTilat.length;
+    var varatutTilatKoko = this.varatutTilat[this.kierto].length;
     for (var i = 0; i < varatutTilatKoko; i++) {
-        var paikka = this.varatutTilat[i];
+        var paikkaKentalla = this.varatutTilat[this.kierto][i];
+        paikkaKentalla.summa(this.paikka);
 
         // Käytetään kentän palaa, huonoa suunnittelua mutta olkoon poikkeus
         this.kentta.pala.paikka.x = paikka.x * this.kentta.pala.koko.x;
