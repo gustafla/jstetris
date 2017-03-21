@@ -59,13 +59,6 @@ function rgbToHex(r, g, b) {
     return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
 
-function piirraTeksti(teksti, x, y) {
-    context.fillStyle = "#FFFFFF";
-    context.strokeStyle = "#000000";
-    context.fillText(teksti, x, y);
-    context.strokeText(teksti, x, y);
-}
-
 // Vec2 -----------------------------------------------------------------------
 
 // Minimaalinen säiliöluokka 2-ulotteiselle vektorille, en uskalla vielä tehdä
@@ -89,27 +82,30 @@ var Nappain = {
     ALAS:40
 }
 
-// Suorakulmio ----------------------------------------------------------------
+// Piirtometodit ---------------------------------------------------------------
 
-function Suorakulmio(x, y, w, h, vari) {
-    this.paikka = new Vec2(x, y);
-    this.koko = new Vec2(w, h);
-    this.vari = vari;
-}
+function piirraPala(x, y, w, h, vari) {
+    var palanKoko = new Vec2(canvas.width/w, canvas.height/h);
+    var paikkaRuudulla = new Vec2(x * palanKoko.x, y * palanKoko.y);
 
-Suorakulmio.prototype.piirra = function() {
     context.beginPath();
-    context.rect(this.paikka.x, this.paikka.y, this.koko.x, this.koko.y);
-    context.fillStyle = this.vari;
+    context.rect(paikkaRuudulla.x, paikkaRuudulla.y, palanKoko.x, palanKoko.y);
+    context.fillStyle = vari;
     context.fill();
     context.closePath();
-};
+}
+
+function piirraTeksti(x, y, teksti) {
+    context.fillStyle = "#FFFFFF";
+    context.strokeStyle = "#000000";
+    context.fillText(teksti, x, y);
+    context.strokeText(teksti, x, y);
+}
 
 // Kentta ---------------------------------------------------------------------
 
 function Kentta(w, h) {
     this.koko = new Vec2(w, h);
-    this.pala = new Suorakulmio(0, 0, canvas.width/this.koko.x, canvas.height/this.koko.y);
     this.kentta = createArray(this.koko.x, this.koko.y);
     for (var x = 0; x < this.koko.x; x++) {
         this.kentta[x].fill(0);
@@ -126,10 +122,7 @@ Kentta.prototype.piirra = function() {
                 continue;
             }
 
-            this.pala.paikka.x = x*this.pala.koko.x;
-            this.pala.paikka.y = y*this.pala.koko.y;
-            this.pala.vari = arvo;
-            this.pala.piirra();
+            piirraPala(x, y, this.koko.x, this.koko.y, arvo);
         }
     }
 };
@@ -354,11 +347,7 @@ Tetromino.prototype.piirra = function() {
         var paikkaKentalla = this.varatutTilat[this.kierto][i];
         paikkaKentalla.summa(this.paikka);
 
-        // Käytetään kentän palaa, huonoa suunnittelua mutta olkoon poikkeus
-        this.kentta.pala.paikka.x = paikka.x * this.kentta.pala.koko.x;
-        this.kentta.pala.paikka.y = paikka.y * this.kentta.pala.koko.y;
-        this.kentta.pala.vari = this.vari;
-        this.kentta.pala.piirra();
+        piirraPala(paikkaKentalla.x, paikkaKentalla.y, this.kentta.koko.x, this.kentta.koko.y, this.vari);
     }
 };
 
@@ -412,11 +401,11 @@ Peli.prototype.paivita = function(nappain) {
 
 Peli.prototype.piirra = function() {
     context.textAlign = "left";
-    piirraTeksti("pisteet: " + this.pisteet, 0, 0);
+    piirraTeksti(0, 0, "pisteet: " + this.pisteet);
 
     if (this.havitty == true) {
         context.textAlign = "center";
-        piirraTeksti("Hävisit pelin!", canvas.width/2, canvas.height/2);
+        piirraTeksti(canvas.width/2, canvas.height/2, "Hävisit pelin!");
     } else {
         // Piirretään pelin grafiikat
         this.kentta.piirra();
