@@ -411,6 +411,9 @@ Peli.prototype.syoteTapahtuma = function(event) {
             case Nappain.ALAS:
                 while (!this.aktiivinenTetromino.siirra(0, 1));
                 break;
+            case Nappain.YLOS:
+                this.aktiivinenTetromino.kierra(1);
+                break;
             default:
         }
 
