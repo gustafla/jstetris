@@ -151,7 +151,7 @@ Kentta.prototype.poista = function(x, y) {
 // Tetromino ------------------------------------------------------------------
 
 function Tetromino(tyyppi, vari, kentta) {
-    this.varatutTilat = [];
+    this.varatutTilat = [[], [], [], []];
     this.paikka = new Vec2(Math.floor(kentta.koko.x/2)-1, 0);
     this.kierto = 0;
     this.vari = vari;
@@ -162,61 +162,87 @@ function Tetromino(tyyppi, vari, kentta) {
         // xxxx
         default:
         case 0:
-            this.varatutTilat[0] = [new Vec2(0, 0), new Vec2(1, 0), new Vec2(2, 0), new Vec2(3, 0)];
-            this.varatutTilat[1] = [new Vec2(0, 0), new Vec2(0, 1), new Vec2(0, 2), new Vec2(0, 3)];
-            this.varatutTilat[2] = this.varatutTilat[0];
-            this.varatutTilat[3] = this.varatutTilat[1];
+            this.varatutTilat = [
+                [new Vec2(-1, 0), new Vec2(0, 0), new Vec2(1, 0), new Vec2(2, 0)],
+                [new Vec2(0, 0), new Vec2(0, 1), new Vec2(0, 2), new Vec2(0, 3)],
+                [],
+                []
+            ];
+            this.varatutTilat[2] = this.varatutTilat[0].slice();
+            this.varatutTilat[3] = this.varatutTilat[1].slice();
             break;
 
         // x
         // xxx
         case 1:
-            this.varatutTilat[0] = [new Vec2(0, 0), new Vec2(0, 1), new Vec2(1, 1), new Vec2(2, 1)];
-            this.varatutTilat[1] = [new Vec2(0, 0), new Vec2(1, 0), new Vec2(0, 1), new Vec2(x, 2)];
-            this.varatutTilat[3] = [new Vec2(-2, 0), new Vec2(-1, 0), new Vec2(0, 0), new Vec2(0, 1)];
-            this.varatutTilat[4] = [new Vec2(-1, 0), new Vec2(0, 0), new Vec2(0, -1), new Vec2(0, -2)];
+            this.varatutTilat = [
+                [new Vec2(0, 0), new Vec2(0, 1), new Vec2(1, 1), new Vec2(2, 1)],
+                [new Vec2(0, 0), new Vec2(1, 0), new Vec2(0, 1), new Vec2(0, 2)],
+                [new Vec2(-2, 0), new Vec2(-1, 0), new Vec2(0, 0), new Vec2(0, 1)],
+                [new Vec2(1, 0), new Vec2(1, 1), new Vec2(1, 2), new Vec2(0, 2)]
+            ];
             break;
 
         //   x
         // xxx
         case 2:
-            this.varatutTilat[0] = [new Vec2(0, 0), new Vec2(0, 1), new Vec2(1, 1), new Vec2(2, 1)];
+            this.varatutTilat = [
+                [new Vec2(2, 0), new Vec2(0, 1), new Vec2(1, 1), new Vec2(2, 1)],
+                [new Vec2(0, 0), new Vec2(0, 1), new Vec2(0, 2), new Vec2(1, 2)],
+                [new Vec2(0, 0), new Vec2(1, 0), new Vec2(2, 0), new Vec2(0, 1)],
+                [new Vec2(0, 0), new Vec2(1, 0), new Vec2(1, 1), new Vec2(1, 2)]
+            ];
             break;
 
         // xx
         // xx
         case 3:
-            this.varatutTilat[0] = new Vec2(x, 0);
-            this.varatutTilat[1] = new Vec2(x+1, 0);
-            this.varatutTilat[2] = new Vec2(x, 1);
-            this.varatutTilat[3] = new Vec2(x+1, 1);
+            this.varatutTilat = [
+                [new Vec2(0, 0), new Vec2(1, 0), new Vec2(0, 1), new Vec2(1, 1)],
+                [],
+                [],
+                []
+            ];
+            this.varatutTilat[1] = this.varatutTilat[0].slice();
+            this.varatutTilat[2] = this.varatutTilat[0].slice();
+            this.varatutTilat[3] = this.varatutTilat[0].slice();
             break;
 
         //  xx
         // xx
         case 4:
-            this.varatutTilat[0] = new Vec2(x+1, 0);
-            this.varatutTilat[1] = new Vec2(x+2, 0);
-            this.varatutTilat[2] = new Vec2(x, 1);
-            this.varatutTilat[3] = new Vec2(x+1, 1);
+            this.varatutTilat = [
+                [new Vec2(1, 0), new Vec2(2, 0), new Vec2(0, 1), new Vec2(1, 1)],
+                [new Vec2(0, 0), new Vec2(0, 1), new Vec2(1, 1), new Vec2(1, 2)],
+                [],
+                []
+            ];
+            this.varatutTilat[2] = this.varatutTilat[0].slice();
+            this.varatutTilat[3] = this.varatutTilat[1].slice();
             break;
 
         //  x
         // xxx
         case 5:
-            this.varatutTilat[0] = new Vec2(x+1, 0);
-            this.varatutTilat[1] = new Vec2(x, 1);
-            this.varatutTilat[2] = new Vec2(x+1, 1);
-            this.varatutTilat[3] = new Vec2(x+2, 1);
+            this.varatutTilat = [
+                [new Vec2(0, 0), new Vec2(-1, 1), new Vec2(0, 1), new Vec2(1, 1)],
+                [new Vec2(0, 0), new Vec2(0, 1), new Vec2(1, 1), new Vec2(0, 2)],
+                [new Vec2(-1, 0), new Vec2(0, 0), new Vec2(1, 0), new Vec2(0, 1)],
+                [new Vec2(1, 0), new Vec2(0, 1), new Vec2(1, 1), new Vec2(1, 2)]
+            ];
             break;
 
         // xx
         //  xx
         case 6:
-            this.varatutTilat[0] = new Vec2(x, 0);
-            this.varatutTilat[1] = new Vec2(x+1, 0);
-            this.varatutTilat[2] = new Vec2(x+1, 1);
-            this.varatutTilat[3] = new Vec2(x+2, 1);
+            this.varatutTilat = [
+                [new Vec2(0, 0), new Vec2(1, 0), new Vec2(1, 1), new Vec2(2, 1)],
+                [new Vec2(1, 0), new Vec2(0, 1), new Vec2(1, 1), new Vec2(0, 2)],
+                [],
+                []
+            ];
+            this.varatutTilat[2] = this.varatutTilat[0].slice();
+            this.varatutTilat[3] = this.varatutTilat[1].slice();
             break;
     }
 }
@@ -385,6 +411,7 @@ Peli.prototype.piirra = function() {
 // Pelin alku -----------------------------------------------------------------
 
 var peli = new Peli();
+peli.vaihdaTetromino();
 window.addEventListener('keydown', function(event) { peli.syoteTapahtuma(event); }, false);
 
 function piirra() {
