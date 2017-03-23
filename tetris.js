@@ -479,9 +479,6 @@ Peli.prototype.syoteTapahtuma = function(event) {
                 while (!this.aktiivinenTetromino.siirra(0, 1));
                 this.paivita();
                 break;
-            case Nappain.R:
-                window.location.reload(false);
-                break;
             default:
         }
 
@@ -501,6 +498,8 @@ window.addEventListener("keydown", function(e) {
     // space and arrow keys
     if([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
         e.preventDefault();
+    } else if (e.keyCode == Nappain.R) {
+        window.location.reload(false);
     }
 }, false);
 
