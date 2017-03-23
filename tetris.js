@@ -83,7 +83,8 @@ var Nappain = {
     YLOS:38,
     OIKEA:39,
     ALAS:40,
-    VALI:32
+    VALI:32,
+    R: 82
 }
 
 // Piirtometodit ---------------------------------------------------------------
@@ -477,6 +478,9 @@ Peli.prototype.syoteTapahtuma = function(event) {
             case Nappain.VALI:
                 while (!this.aktiivinenTetromino.siirra(0, 1));
                 this.aktiivinenTetromino.aseta();
+                break;
+            case Nappain.R:
+                window.location.reload(false);
                 break;
             default:
         }
