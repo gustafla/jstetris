@@ -3,3 +3,4 @@ Move unused methods to deadcode.js
 Implement animations
 Implement more permissive after-drop movement
 Implement variable speed (level)
+Implement next piece indicator
