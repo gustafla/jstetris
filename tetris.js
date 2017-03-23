@@ -477,7 +477,7 @@ Peli.prototype.syoteTapahtuma = function(event) {
                 break;
             case Nappain.VALI:
                 while (!this.aktiivinenTetromino.siirra(0, 1));
-                this.aktiivinenTetromino.aseta();
+                this.paivita();
                 break;
             case Nappain.R:
                 window.location.reload(false);
