@@ -82,7 +82,8 @@ var Nappain = {
     VASEN:37,
     YLOS:38,
     OIKEA:39,
-    ALAS:40
+    ALAS:40,
+    VALI:32
 }
 
 // Piirtometodit ---------------------------------------------------------------
@@ -473,6 +474,10 @@ Peli.prototype.syoteTapahtuma = function(event) {
             case Nappain.YLOS:
                 this.aktiivinenTetromino.kierra(1);
                 break;
+            case Nappain.VALI:
+                while (!this.aktiivinenTetromino.siirra(0, 1));
+                this.aktiivinenTetromino.aseta();
+                break;
             default:
         }
 
@@ -486,6 +491,14 @@ peli.vaihdaTetromino();
 window.addEventListener('keydown', function(event) { peli.syoteTapahtuma(event); }, false);
 context.font = '26px sans-serif';
 context.textBaseline = "hanging";
+
+// Estä näppäinten skrollaus
+window.addEventListener("keydown", function(e) {
+    // space and arrow keys
+    if([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+        e.preventDefault();
+    }
+}, false);
 
 function paivita() {
     peli.paivita();
